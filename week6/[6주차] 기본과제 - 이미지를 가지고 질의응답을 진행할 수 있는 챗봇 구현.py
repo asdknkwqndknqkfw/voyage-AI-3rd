@@ -1,36 +1,62 @@
+from langchain_openai import ChatOpenAI
+from langchain_core.messages import HumanMessage, AIMessage
+
+from dotenv import load_dotenv
+
+import os
 import streamlit as st
+import base64
 
+load_dotenv()
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+print(f'OPENAI_API_KEY: {OPENAI_API_KEY[:7]}')
 
-def streamlit_test1():
-    st.title("ChatBot")
+model_name = "gpt-4o-mini"
+model = ChatOpenAI(model=model_name)
 
-    if "messages" not in st.session_state:
-        st.session_state.messages = []  # 유저의 AI 간의 대화를 저장
+st.title("Fashion Recommendation Bot")
 
-    # messages에 저장되어 있는 메시지들을 UI에 띄우는 코드
-    for message in st.session_state.messages:
-        print(f"message: {message}")
-        with st.chat_message(message["role"]):
-            st.markdown(message["content"])
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
-    if prompt := st.chat_input(
-        "What is up?"
-    ):  # User의 input을 기다립니다. Placeholder로 "What is up?"라는 문구를 사용합니다.
+prompt = st.chat_input("Question what you want")
+
+# file uploader
+if images := st.file_uploader(
+    "본인의 전신이 보이는 사진을 올려주세요!", 
+    type=['png', 'jpg', 'jpeg'],
+    accept_multiple_files=True  # 여러 이미지를 입력으로 받기
+):
+    image_contents = []
+    
+    for _image in images:
+        st.image(_image)
+        image_data = base64.b64encode(_image.read()).decode("utf-8")
+        image_url = f"data:image/jpeg;base64,{image_data}"
+        image_contents.append({
+            "type": "image_url",
+            "image_url": {"url": image_url},
+        })
+    
+    if prompt:
+        # 과거 메시지 복원
+        for message in st.session_state.messages:
+            with st.chat_message(message["role"]):
+                st.markdown(message["content"])
+        
         with st.chat_message("user"):
-            st.markdown(prompt)  # User의 메시지를 기록
-        st.session_state.messages.append(
-            {"role": "user", "content": prompt}
-        )  # User의 메시지를 session_state에 저장
-
-        response = f"Echo: {prompt}"  # 우리가 내놓을 답변으로 user가 보낸 메시지를 사용
-
-        # User의 메시지를 처리
+            st.markdown(prompt)
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        
+        # 주어진 사진을 기준으로 패션 아이템을 추천할 수 있도록 prompt를 준비
         with st.chat_message("assistant"):
-            st.markdown(response)
-            st.session_state.messages.append(
-                {"role": "assistance", "content": response}
+            message = HumanMessage(
+                content=[
+                    {"type": "text", "text": prompt},
+                    *image_contents
+                ],
             )
-
-
-if __name__ == "__main__":
-    streamlit_test1()
+            result = model.invoke([message])
+            response = result.content
+            st.markdown(response)
+        st.session_state.messages.append({"role": "assistant", "content": response})
