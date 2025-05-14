@@ -32,7 +32,7 @@ class Arguments:
     torch_dtype: Optional[str] = field(
         default=None, metadata={"choices": ["auto", "bfloat16", "float16", "float32"]}
     )  # 우리 모델의 precision(data type이라고 이해하시면 됩니다)
-
+    data_path: Optional[str] = field(default='corpus.json')
     dataset_name: Optional[str] = field(
         default=None
     )  # Fine-tuning으로 사용할 huggingface hub에서의 dataset 이름
@@ -72,7 +72,10 @@ transformers.utils.logging.enable_explicit_format()
 
 logger.info(f"Training/evaluation parameters {training_args}")
 
-raw_datasets = load_dataset(args.dataset_name, args.dataset_config_name)
+if args.data_path is not None:
+    raw_datasets = load_dataset("json", data_files=args.data_path)
+else:
+    raw_datasets = load_dataset(args.dataset_name, args.dataset_config_name)
 
 config = AutoConfig.from_pretrained(args.model_name_or_path)
 tokenizer = AutoTokenizer.from_pretrained(args.model_name_or_path)
@@ -185,14 +188,13 @@ if eval_dataset is not None:
 
 # 명령어
 '''
-python train.py \
+python train2.py \
     --model_name_or_path openai-community/openai-gpt \
     --per_device_train_batch_size 8 \
-    --dataset_name wikitext \
-    --dataset_config_name wikitext-2-raw-v1 \
+    --data_path corpus.json \
     --do_train \
-	--do_eval \
-    --output_dir /tmp/test-clm11 \
+    --do_eval \
+    --output_dir /tmp/test-clm-train2-01 \
     --save_total_limit 1 \
     --logging_steps 50
 '''
