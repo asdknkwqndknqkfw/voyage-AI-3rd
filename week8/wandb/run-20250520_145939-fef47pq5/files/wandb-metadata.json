@@ -1,0 +1,38 @@
+{
+  "os": "Linux-6.8.0-1027-aws-x86_64-with-glibc2.39",
+  "python": "CPython 3.10.16",
+  "startedAt": "2025-05-20T14:59:39.960966Z",
+  "program": "/home/ubuntu/workspace/8/train.py",
+  "codePath": "train.py",
+  "email": "wltkqdl.voice@gmail.com",
+  "root": "/home/ubuntu/workspace/8",
+  "host": "ip-172-31-36-55",
+  "executable": "/home/ubuntu/miniconda3/envs/hanghae99/bin/python",
+  "codePathLocal": "train.py",
+  "cpu_count": 2,
+  "cpu_count_logical": 4,
+  "gpu": "Tesla T4",
+  "gpu_count": 1,
+  "disk": {
+    "/": {
+      "total": "102888095744",
+      "used": "25883512832"
+    }
+  },
+  "memory": {
+    "total": "16555110400"
+  },
+  "cpu": {
+    "count": 2,
+    "countLogical": 4
+  },
+  "gpu_nvidia": [
+    {
+      "name": "Tesla T4",
+      "memoryTotal": "16106127360",
+      "cudaCores": 2560,
+      "architecture": "Turing"
+    }
+  ],
+  "cudaVersion": "12.2"
+}
